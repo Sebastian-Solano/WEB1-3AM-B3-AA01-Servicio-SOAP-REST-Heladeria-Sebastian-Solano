@@ -1,0 +1,12 @@
+.clear-filter { border: 1px solid #deded8; background: #fff; color: #9a5c45; border-radius: 11px; padding: 0 15px; font-weight: 700; }
+.category-chips { display: flex; gap: 8px; flex-wrap: wrap; margin: -8px 0 22px; }
+.category-chips button { border: 1px solid #deded8; background: #fff; color: #67716c; border-radius: 20px; padding: 7px 13px; font-size: 12px; font-weight: 700; }
+.category-chips button.active { background: #20382f; border-color: #20382f; color: #fff; }
+.stock-controls { display: flex; align-items: center; gap: 8px; padding: 10px 0; border-top: 1px solid #f0eee9; color: #78827d; font-size: 11px; }
+.stock-controls span { margin-right: auto; }
+.stock-controls button { border: 1px solid #deded8; background: #fff; border-radius: 7px; width: 25px; height: 25px; color: #385548; font-weight: 800; }
+.stock-controls button:disabled { opacity: .35; cursor: not-allowed; }
+.stock-controls strong { color: #24362e; min-width: 20px; text-align: center; }
+.product-body footer { margin-top: 8px; }
+.product-body footer .delete:hover { background: #ffdce1; color: #ad4d5c; }
+@media (max-width: 720px) { .clear-filter { padding: 11px 15px; } }

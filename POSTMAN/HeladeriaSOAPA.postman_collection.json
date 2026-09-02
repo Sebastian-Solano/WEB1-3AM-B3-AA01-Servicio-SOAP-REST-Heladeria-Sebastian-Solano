@@ -1,0 +1,304 @@
+{
+  "info": {
+    "_postman_id": "732f4ffe-6f6d-43d5-970b-ad6f6a5e8714",
+    "name": "HeladeriaSOAPA",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "57564027",
+    "_collection_link": "https://go.postman.co/collection/57564027-732f4ffe-6f6d-43d5-970b-ad6f6a5e8714?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "ObtenerProductos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8",
+            "type": "text"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProductos\"",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope\r\n    xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <ObtenerProductos xmlns=\"http://tempuri.org/\" />\r\n    </soap:Body>\r\n</soap:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5102/ProductoService.asmx",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5102",
+          "path": [
+            "ProductoService.asmx"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ObtenerProductoID",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8",
+            "type": "text"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProducto\"",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope\r\n    xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <ObtenerProducto xmlns=\"http://tempuri.org/\">\r\n            <idProducto>1</idProducto>\r\n        </ObtenerProducto>\r\n    </soap:Body>\r\n</soap:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5102/ProductoService.asmx?wsdl",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5102",
+          "path": [
+            "ProductoService.asmx"
+          ],
+          "query": [
+            {
+              "key": "wsdl",
+              "value": null
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AgregarProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8",
+            "type": "text"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/AgregarProducto\"",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope\r\n    xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <AgregarProducto xmlns=\"http://tempuri.org/\">\r\n            <producto>\r\n                <IdProducto>0</IdProducto>\r\n                <Nombre>Helado de Chocolate</Nombre>\r\n                <Descripcion>Helado cremoso sabor chocolate</Descripcion>\r\n                <Precio>2.50</Precio>\r\n                <Stock>30</Stock>\r\n                <Estado>true</Estado>\r\n                <IdCategoria>1</IdCategoria>\r\n            </producto>\r\n        </AgregarProducto>\r\n    </soap:Body>\r\n</soap:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5102/ProductoService.asmx",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5102",
+          "path": [
+            "ProductoService.asmx"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ActualizarProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8",
+            "type": "text"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ActualizarProducto\"",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope\r\n    xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <ActualizarProducto xmlns=\"http://tempuri.org/\">\r\n            <producto>\r\n                <IdProducto>1</IdProducto>\r\n                <Nombre>Helado de Chocolate Grande</Nombre>\r\n                <Descripcion>Helado cremoso de chocolate presentación grande</Descripcion>\r\n                <Precio>3.50</Precio>\r\n                <Stock>25</Stock>\r\n                <Estado>true</Estado>\r\n                <IdCategoria>1</IdCategoria>\r\n            </producto>\r\n        </ActualizarProducto>\r\n    </soap:Body>\r\n</soap:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5102/ProductoService.asmx?wsdl",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5102",
+          "path": [
+            "ProductoService.asmx"
+          ],
+          "query": [
+            {
+              "key": "wsdl",
+              "value": null
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "EliminarProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8",
+            "type": "text"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/EliminarProducto\"",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope\r\n    xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <EliminarProducto xmlns=\"http://tempuri.org/\">\r\n            <idProducto>5</idProducto>\r\n        </EliminarProducto>\r\n    </soap:Body>\r\n</soap:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:5102/ProductoService.asmx?wsdl",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5102",
+          "path": [
+            "ProductoService.asmx"
+          ],
+          "query": [
+            {
+              "key": "wsdl",
+              "value": null
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ProductosPorPrecio",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8",
+            "type": "text"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProductosPorPrecio\"",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope\r\n    xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <ObtenerProductosPorPrecio xmlns=\"http://tempuri.org/\">\r\n            <precioMinimo>1.00</precioMinimo>\r\n            <precioMaximo>5.00</precioMaximo>\r\n        </ObtenerProductosPorPrecio>\r\n    </soap:Body>\r\n</soap:Envelope>"
+        },
+        "url": {
+          "raw": "http://localhost:5102/ProductoService.asmx?wsdl",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5102",
+          "path": [
+            "ProductoService.asmx"
+          ],
+          "query": [
+            {
+              "key": "wsdl",
+              "value": null
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "ProductoPorCategoria",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8",
+            "type": "text"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProductosPorCategoria\"",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<soap:Envelope\r\n    xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\r\n    <soap:Body>\r\n        <ObtenerProductosPorCategoria xmlns=\"http://tempuri.org/\">\r\n            <idCategoria>1</idCategoria>\r\n        </ObtenerProductosPorCategoria>\r\n    </soap:Body>\r\n</soap:Envelope>"
+        },
+        "url": {
+          "raw": "http://localhost:5102/ProductoService.asmx?wsdl",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5102",
+          "path": [
+            "ProductoService.asmx"
+          ],
+          "query": [
+            {
+              "key": "wsdl",
+              "value": null
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

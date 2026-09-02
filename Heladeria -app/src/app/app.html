@@ -1,0 +1,29 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#"><span>🍦</span><strong>SOAPA</strong></a>
+    <nav><a class="active" href="#productos"><span>▦</span> Productos</a><a href="#inventario"><span>◎</span> Inventario</a><a href="#productos"><span>◈</span> Categorías</a></nav>
+    <div class="sidebar-note"><span>✨</span><p>Hecho con cariño<br><strong>Heladería SOAPA</strong></p></div>
+  </aside>
+  <main>
+    <header><div><p class="eyebrow">Panel de administración</p><h1>Hola, bienvenido 👋</h1><p>Gestiona los sabores y el inventario de tu heladería.</p></div><button class="primary" (click)="mostrarFormulario = true">+ Nuevo producto</button></header>
+    <section class="stats" id="inventario">
+      <article><span class="stat-icon mint">🍦</span><div><small>Productos activos</small><strong>{{ productos().length }}</strong></div></article>
+      <article><span class="stat-icon peach">📦</span><div><small>Unidades en stock</small><strong>{{ totalStock() }}</strong></div></article>
+      <article><span class="stat-icon rose">!</span><div><small>Stock bajo</small><strong>{{ stockBajo() }}</strong></div></article>
+      <article><span class="stat-icon lilac">$</span><div><small>Valor del inventario</small><strong>{{ valorInventario() | currency:'USD' }}</strong></div></article>
+    </section>
+    <section id="productos">
+      <div class="section-heading"><div><p class="eyebrow">Nuestro catálogo</p><h2>Productos</h2></div><span>{{ productosFiltrados().length }} resultados</span></div>
+      <div class="filters"><label class="search"><span>⌕</span><input [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" placeholder="Buscar por nombre o descripción..."></label><select [ngModel]="categoriaSeleccionada()" (ngModelChange)="categoriaSeleccionada.set($event)"><option [ngValue]="0">Todas las categorías</option>@for (categoria of categorias; track categoria.id) {<option [ngValue]="categoria.id">{{ categoria.nombre }}</option>}</select>@if (busqueda() || categoriaSeleccionada()) {<button class="clear-filter" type="button" (click)="limpiarFiltros()">Limpiar</button>}</div>
+      <div class="category-chips"><button type="button" [class.active]="categoriaSeleccionada() === 0" (click)="categoriaSeleccionada.set(0)">Todos</button>@for (categoria of categorias; track categoria.id) {<button type="button" [class.active]="categoriaSeleccionada() === categoria.id" (click)="categoriaSeleccionada.set(categoria.id)">{{ categoria.nombre }}</button>}</div>
+      <div class="product-grid">
+        @for (producto of productosFiltrados(); track producto.idProducto) {
+          <article class="product-card"><div class="product-art" [style.background]="producto.color"><span>{{ producto.icono }}</span><em [class.low]="producto.stock <= 10">{{ producto.stock }} disponibles</em></div><div class="product-body"><small>{{ nombreCategoria(producto.idCategoria) }}</small><h3>{{ producto.nombre }}</h3><p>{{ producto.descripcion }}</p><div class="stock-controls"><span>Stock</span><button type="button" (click)="ajustarStock(producto.idProducto, -1)" [disabled]="producto.stock === 0">−</button><strong>{{ producto.stock }}</strong><button type="button" (click)="ajustarStock(producto.idProducto, 1)">+</button></div><footer><strong>{{ producto.precio | currency:'USD' }}</strong><button class="delete" (click)="eliminarProducto(producto.idProducto)" title="Eliminar">✕</button></footer></div></article>
+        } @empty {<div class="empty"><span>🍨</span><h3>No encontramos productos</h3><p>Prueba con otra búsqueda o categoría.</p></div>}
+      </div>
+    </section>
+  </main>
+</div>
+@if (mostrarFormulario) {
+  <div class="backdrop" (click)="mostrarFormulario = false"><form class="modal" (click)="$event.stopPropagation()" (ngSubmit)="guardarProducto()"><div class="modal-heading"><div><p class="eyebrow">Nuevo sabor</p><h2>Agregar producto</h2></div><button type="button" (click)="mostrarFormulario = false">✕</button></div><label>Nombre<input name="nombre" [(ngModel)]="nuevoProducto.nombre" required placeholder="Ej. Menta granizada"></label><label>Descripción<textarea name="descripcion" [(ngModel)]="nuevoProducto.descripcion" rows="3"></textarea></label><div class="form-row"><label>Precio<input name="precio" [(ngModel)]="nuevoProducto.precio" type="number" min="0.01" step="0.01" required></label><label>Stock<input name="stock" [(ngModel)]="nuevoProducto.stock" type="number" min="0" required></label></div><label>Categoría<select name="categoria" [(ngModel)]="nuevoProducto.idCategoria">@for (categoria of categorias; track categoria.id) {<option [ngValue]="categoria.id">{{ categoria.nombre }}</option>}</select></label><div class="modal-actions"><button type="button" class="secondary" (click)="mostrarFormulario = false">Cancelar</button><button class="primary">Guardar producto</button></div></form></div>
+}
