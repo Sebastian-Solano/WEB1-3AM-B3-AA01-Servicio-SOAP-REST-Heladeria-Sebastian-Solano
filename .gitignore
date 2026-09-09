@@ -52,3 +52,8 @@ appsettings.Local.json
 *.ldf
 *.db
 *.sqlite
+node_modules/
+.angular/
+dist/
+tmp/
+TestResults/

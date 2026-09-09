@@ -1,29 +1,388 @@
 <div class="app-shell">
   <aside class="sidebar">
-    <a class="brand" href="#"><span>🍦</span><strong>SOAPA</strong></a>
-    <nav><a class="active" href="#productos"><span>▦</span> Productos</a><a href="#inventario"><span>◎</span> Inventario</a><a href="#productos"><span>◈</span> Categorías</a></nav>
-    <div class="sidebar-note"><span>✨</span><p>Hecho con cariño<br><strong>Heladería SOAPA</strong></p></div>
-  </aside>
-  <main>
-    <header><div><p class="eyebrow">Panel de administración</p><h1>Hola, bienvenido 👋</h1><p>Gestiona los sabores y el inventario de tu heladería.</p></div><button class="primary" (click)="mostrarFormulario = true">+ Nuevo producto</button></header>
-    <section class="stats" id="inventario">
-      <article><span class="stat-icon mint">🍦</span><div><small>Productos activos</small><strong>{{ productos().length }}</strong></div></article>
-      <article><span class="stat-icon peach">📦</span><div><small>Unidades en stock</small><strong>{{ totalStock() }}</strong></div></article>
-      <article><span class="stat-icon rose">!</span><div><small>Stock bajo</small><strong>{{ stockBajo() }}</strong></div></article>
-      <article><span class="stat-icon lilac">$</span><div><small>Valor del inventario</small><strong>{{ valorInventario() | currency:'USD' }}</strong></div></article>
-    </section>
-    <section id="productos">
-      <div class="section-heading"><div><p class="eyebrow">Nuestro catálogo</p><h2>Productos</h2></div><span>{{ productosFiltrados().length }} resultados</span></div>
-      <div class="filters"><label class="search"><span>⌕</span><input [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" placeholder="Buscar por nombre o descripción..."></label><select [ngModel]="categoriaSeleccionada()" (ngModelChange)="categoriaSeleccionada.set($event)"><option [ngValue]="0">Todas las categorías</option>@for (categoria of categorias; track categoria.id) {<option [ngValue]="categoria.id">{{ categoria.nombre }}</option>}</select>@if (busqueda() || categoriaSeleccionada()) {<button class="clear-filter" type="button" (click)="limpiarFiltros()">Limpiar</button>}</div>
-      <div class="category-chips"><button type="button" [class.active]="categoriaSeleccionada() === 0" (click)="categoriaSeleccionada.set(0)">Todos</button>@for (categoria of categorias; track categoria.id) {<button type="button" [class.active]="categoriaSeleccionada() === categoria.id" (click)="categoriaSeleccionada.set(categoria.id)">{{ categoria.nombre }}</button>}</div>
-      <div class="product-grid">
-        @for (producto of productosFiltrados(); track producto.idProducto) {
-          <article class="product-card"><div class="product-art" [style.background]="producto.color"><span>{{ producto.icono }}</span><em [class.low]="producto.stock <= 10">{{ producto.stock }} disponibles</em></div><div class="product-body"><small>{{ nombreCategoria(producto.idCategoria) }}</small><h3>{{ producto.nombre }}</h3><p>{{ producto.descripcion }}</p><div class="stock-controls"><span>Stock</span><button type="button" (click)="ajustarStock(producto.idProducto, -1)" [disabled]="producto.stock === 0">−</button><strong>{{ producto.stock }}</strong><button type="button" (click)="ajustarStock(producto.idProducto, 1)">+</button></div><footer><strong>{{ producto.precio | currency:'USD' }}</strong><button class="delete" (click)="eliminarProducto(producto.idProducto)" title="Eliminar">✕</button></footer></div></article>
-        } @empty {<div class="empty"><span>🍨</span><h3>No encontramos productos</h3><p>Prueba con otra búsqueda o categoría.</p></div>}
+    <a class="brand" href="#" (click)="$event.preventDefault(); navegar('productos')">
+      <span>🍦</span>
+      <div>
+        <strong>SOAPA</strong>
+        <small>Heladería · inventario</small>
       </div>
+    </a>
+    <nav aria-label="Navegación principal">
+      <button [class.active]="pagina() === 'productos'" (click)="navegar('productos')">
+        <span class="nav-ico">▦</span>
+        <strong>Productos</strong>
+      </button>
+      <button [class.active]="pagina() === 'categorias'" (click)="navegar('categorias')">
+        <span class="nav-ico">◈</span>
+        <strong>Categorías</strong>
+      </button>
+      <button [class.active]="pagina() === 'movimientos'" (click)="navegar('movimientos')">
+        <span class="nav-ico">◎</span>
+        <strong>Movimientos</strong>
+      </button>
+      <button [class.active]="pagina() === 'externa'" (click)="navegar('externa')">
+        <span class="nav-ico">↗</span>
+        <strong>Catálogo externo</strong>
+      </button>
+    </nav>
+    <div class="sidebar-note">
+      <p>Sabores y existencias de <strong>Heladería SOAPA</strong>.</p>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">{{ vista().eyebrow }}</p>
+        <h1>{{ vista().titulo }}</h1>
+        <p class="lede">{{ vista().texto }}</p>
+      </div>
+      <button class="secondary" [disabled]="ocupado()" (click)="recargar()">↻ Actualizar datos</button>
+    </header>
+
+    @if (error() && !modal) {<div class="notice error" role="alert">{{ error() }}</div>}
+    @if (mensaje()) {<div class="notice success" role="status">{{ mensaje() }}</div>}
+    @if (ocupado()) {<p class="loading" role="status">Actualizando datos…</p>}
+
+    <section class="stats" aria-label="Resumen del inventario">
+      <article>
+        <span class="stat-icon mint">🍦</span>
+        <div><small>Productos activos</small><strong>{{ activos().length }}</strong></div>
+      </article>
+      <article>
+        <span class="stat-icon peach">📦</span>
+        <div><small>Unidades en stock</small><strong>{{ totalStock() }}</strong></div>
+      </article>
+      <button type="button" class="stat-btn" (click)="filtrarBajo()" [attr.aria-pressed]="soloBajo()">
+        <span class="stat-icon rose">!</span>
+        <div><small>Stock bajo (≤ 10)</small><strong>{{ stockBajo() }}</strong></div>
+      </button>
+      <article>
+        <span class="stat-icon lilac">$</span>
+        <div><small>Valor del inventario</small><strong>{{ valorInventario() | currency:'USD' }}</strong></div>
+      </article>
     </section>
+
+    @if (pagina() === 'productos') {
+      <section>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Nuestro catálogo</p>
+            <h2>Productos</h2>
+          </div>
+          <button class="primary" [disabled]="ocupado()" (click)="editarProducto()">+ Nuevo producto</button>
+        </div>
+        <div class="filters">
+          <label class="search">
+            <span>⌕</span>
+            <input aria-label="Buscar productos" [ngModel]="busqueda()" (ngModelChange)="busqueda.set($event)" placeholder="Buscar por nombre o descripción">
+          </label>
+          <select aria-label="Filtrar categoría" [ngModel]="categoriaSeleccionada()" (ngModelChange)="categoriaSeleccionada.set($event)">
+            <option [ngValue]="0">Todas las categorías</option>
+            @for (c of categorias(); track c.idCategoria) {
+              <option [ngValue]="c.idCategoria">{{ c.nombre }}</option>
+            }
+          </select>
+          <select aria-label="Ordenar productos" [ngModel]="orden()" (ngModelChange)="ordenarPor($event)">
+            <option value="nombre">Nombre</option>
+            <option value="precio">Precio</option>
+            <option value="stock">Stock</option>
+          </select>
+        </div>
+        @if (categoriaSeleccionada() || soloBajo()) {
+          <div class="active-filters">
+            @if (categoriaSeleccionada()) {
+              <button type="button" class="filter-chip" (click)="categoriaSeleccionada.set(0)">Categoría: {{ nombreCategoria(categoriaSeleccionada()) }} · quitar</button>
+            }
+            @if (soloBajo()) {
+              <button type="button" class="filter-chip" (click)="soloBajo.set(false)">Stock bajo · quitar</button>
+            }
+            <button type="button" class="filter-chip" (click)="quitarFiltros()">Limpiar filtros</button>
+          </div>
+        }
+        <div class="product-grid">
+          @for (p of productosFiltrados(); track p.idProducto) {
+            <article class="product-card">
+              <div class="product-art art-{{ tono(p.idCategoria) }}" [class.inactivo]="!p.estado">
+                <span>{{ iconoProducto(p) }}</span>
+                <em class="badge-stock" [class.low]="p.estado && p.stock <= 10">{{ p.estado ? p.stock + ' disponibles' : 'Inactivo' }}</em>
+              </div>
+              <div class="product-body">
+                <small>{{ nombreCategoria(p.idCategoria) }}</small>
+                <h3>{{ p.nombre }}</h3>
+                <p>{{ p.descripcion }}</p>
+                <div class="price-row"><strong>{{ p.precio | currency:'USD' }}</strong></div>
+                <div class="stock-bar" [class.low]="p.stock <= 10" aria-hidden="true"><span [style.width.%]="anchoStock(p.stock)"></span></div>
+                <div class="actions">
+                  <button class="secondary" [disabled]="ocupado()" (click)="editarProducto(p)">Editar</button>
+                  <button class="secondary" [disabled]="ocupado()" (click)="verMovimientosDe(p.idProducto)">Movimientos</button>
+                  @if (p.estado) {
+                    <button class="danger" [disabled]="ocupado()" (click)="eliminar('Producto', p.idProducto)">Desactivar</button>
+                  }
+                </div>
+              </div>
+            </article>
+          } @empty {
+            <div class="empty">
+              <span>🍨</span>
+              <h3>No hay productos para mostrar</h3>
+              <p>Agrega un producto o cambia los filtros.</p>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (pagina() === 'categorias') {
+      <section>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Organiza tus sabores</p>
+            <h2>Categorías</h2>
+          </div>
+          <button class="primary" [disabled]="ocupado()" (click)="editarCategoria()">+ Nueva categoría</button>
+        </div>
+        <div class="filters">
+          <label class="search">
+            <span>⌕</span>
+            <input aria-label="Buscar categorías" [ngModel]="busquedaCategoria()" (ngModelChange)="busquedaCategoria.set($event)" placeholder="Buscar categoría">
+          </label>
+        </div>
+        <div class="category-grid">
+          @for (c of categoriasFiltradas(); track c.idCategoria) {
+            <article class="category-card">
+              <div class="category-art art-{{ tono(c.idCategoria) }}">
+                <span>{{ iconoCategoria(c.nombre) }}</span>
+                <em class="status-pill">{{ c.estado ? 'Activa' : 'Inactiva' }}</em>
+              </div>
+              <div class="category-body">
+                <small>Categoría</small>
+                <h3>{{ c.nombre }}</h3>
+                <p>{{ c.descripcion || 'Sin descripción' }}</p>
+                <div class="category-meta">{{ productosDe(c.idCategoria).length }} producto(s) relacionados</div>
+                <div class="actions">
+                  <button class="secondary" [disabled]="ocupado()" (click)="verProductosDe(c.idCategoria)">Ver productos</button>
+                  <button class="secondary" [disabled]="ocupado()" (click)="editarCategoria(c)">Editar</button>
+                  @if (c.estado) {
+                    <button class="danger" [disabled]="ocupado()" (click)="eliminar('Categoria', c.idCategoria)">Desactivar</button>
+                  }
+                </div>
+              </div>
+            </article>
+          } @empty {
+            <div class="empty">
+              <span>🏷️</span>
+              <h3>No hay categorías para mostrar</h3>
+              <p>Crea una categoría para organizar el menú.</p>
+            </div>
+          }
+        </div>
+      </section>
+    }
+
+    @if (pagina() === 'movimientos') {
+      <section>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Control de existencias</p>
+            <h2>Movimientos de inventario</h2>
+          </div>
+          <button class="primary" [disabled]="ocupado()" (click)="editarMovimiento()">+ Nuevo movimiento</button>
+        </div>
+        <p class="help">Las entradas suman existencias y las salidas las descuentan. Editar o eliminar un movimiento recalcula su efecto en el stock.</p>
+        <div class="filters">
+          <select aria-label="Filtrar movimientos por producto" [(ngModel)]="filtroMovimiento" (ngModelChange)="recargar()" [disabled]="ocupado()">
+            <option [ngValue]="0">Todos los productos</option>
+            @for (p of productos(); track p.idProducto) {
+              <option [ngValue]="p.idProducto">{{ p.nombre }} · stock {{ p.stock }}</option>
+            }
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Producto</th><th>Tipo</th><th>Cantidad</th><th>Fecha local</th><th>Observación</th><th>Acciones</th></tr>
+            </thead>
+            <tbody>
+              @for (m of movimientos(); track m.idMovimiento) {
+                <tr>
+                  <td>{{ nombreProducto(m.idProducto) }}</td>
+                  <td><span class="badge" [class.salida]="m.tipoMovimiento === 'Salida'">{{ m.tipoMovimiento }}</span></td>
+                  <td>{{ m.cantidad }}</td>
+                  <td>{{ m.fechaMovimiento + (m.fechaMovimiento.endsWith('Z') ? '' : 'Z') | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ m.observacion }}</td>
+                  <td>
+                    <div class="actions">
+                      <button class="secondary" [disabled]="ocupado()" (click)="editarMovimiento(m)">Editar</button>
+                      <button class="danger" [disabled]="ocupado()" (click)="eliminarMovimiento(m.idMovimiento)">Eliminar</button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="6">No hay movimientos para este filtro.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+
+    @if (pagina() === 'externa') {
+      <section>
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Ideas e insumos</p>
+            <h2>Catálogo externo</h2>
+          </div>
+          <button class="primary" [disabled]="consultando()" (click)="consultarExterna()">{{ consultando() ? 'Consultando…' : 'Consultar catálogo' }}</button>
+        </div>
+        <p class="help">Consulta alimentos de referencia para ingredientes y complementos. Los precios se muestran en USD para compararlos con el inventario local.</p>
+        <div class="filters">
+          <input aria-label="Buscar en catálogo externo" [(ngModel)]="busquedaExterna" placeholder="Filtrar resultados: Milk, Strawberry…">
+          <select aria-label="Producto local para comparar" [(ngModel)]="referenciaLocal">
+            <option [ngValue]="0">Comparar con producto local</option>
+            @for (p of activos(); track p.idProducto) {
+              <option [ngValue]="p.idProducto">{{ p.nombre }}</option>
+            }
+          </select>
+        </div>
+        @if (referenciaLocal) {
+          <p class="notice success">Referencia local: {{ nombreProducto(referenciaLocal) }} · {{ precioLocal() | currency:'USD' }}</p>
+        }
+        @if (errorExterno()) {
+          <p class="notice error" role="alert">{{ errorExterno() }} Puede volver a intentar la consulta.</p>
+        }
+        <div class="product-grid">
+          @for (p of externosFiltrados(); track p.id) {
+            <article class="product-card">
+              <div class="product-art externa"><img [src]="p.thumbnail" [alt]="p.title" loading="lazy"></div>
+              <div class="product-body">
+                <small>{{ p.category }}{{ p.brand ? ' · ' + p.brand : '' }}</small>
+                <h3>{{ p.title }}</h3>
+                <p>{{ p.description }}</p>
+                @if (p.rating) {<p class="stars" aria-label="Valoración">{{ estrellas(p.rating) }} {{ p.rating }}</p>}
+                <div class="price-row"><strong>{{ p.price | currency:'USD' }}</strong></div>
+                @if (referenciaLocal) {
+                  <p class="comparison" [class.cheaper]="diferencia(p.price) < 0" [class.dearer]="diferencia(p.price) > 0">
+                    {{ diferencia(p.price) < 0 ? 'Más económico que el local' : diferencia(p.price) > 0 ? 'Más caro que el local' : 'Mismo precio de referencia' }}
+                    · {{ diferencia(p.price) | currency:'USD' }}
+                  </p>
+                }
+              </div>
+            </article>
+          } @empty {
+            <div class="empty">
+              <span>↗</span>
+              <h3>{{ consultado() ? 'No hay resultados' : 'Consulta el catálogo público' }}</h3>
+              <p>{{ consultado() ? 'Prueba con otro filtro.' : 'Pulsa Consultar catálogo para obtener los datos externos.' }}</p>
+            </div>
+          }
+        </div>
+      </section>
+    }
   </main>
 </div>
-@if (mostrarFormulario) {
-  <div class="backdrop" (click)="mostrarFormulario = false"><form class="modal" (click)="$event.stopPropagation()" (ngSubmit)="guardarProducto()"><div class="modal-heading"><div><p class="eyebrow">Nuevo sabor</p><h2>Agregar producto</h2></div><button type="button" (click)="mostrarFormulario = false">✕</button></div><label>Nombre<input name="nombre" [(ngModel)]="nuevoProducto.nombre" required placeholder="Ej. Menta granizada"></label><label>Descripción<textarea name="descripcion" [(ngModel)]="nuevoProducto.descripcion" rows="3"></textarea></label><div class="form-row"><label>Precio<input name="precio" [(ngModel)]="nuevoProducto.precio" type="number" min="0.01" step="0.01" required></label><label>Stock<input name="stock" [(ngModel)]="nuevoProducto.stock" type="number" min="0" required></label></div><label>Categoría<select name="categoria" [(ngModel)]="nuevoProducto.idCategoria">@for (categoria of categorias; track categoria.id) {<option [ngValue]="categoria.id">{{ categoria.nombre }}</option>}</select></label><div class="modal-actions"><button type="button" class="secondary" (click)="mostrarFormulario = false">Cancelar</button><button class="primary">Guardar producto</button></div></form></div>
+
+@if (modal) {
+  <div class="backdrop" (click)="cerrarOverlay()">
+    <div class="modal" role="dialog" aria-modal="true" [attr.aria-label]="modal === 'producto' ? 'Formulario de producto' : modal === 'categoria' ? 'Formulario de categoría' : 'Formulario de movimiento'" (click)="$event.stopPropagation()">
+      <div class="modal-heading">
+        <h2>{{ modal === 'producto' ? (producto.idProducto ? 'Editar producto' : 'Nuevo producto') : modal === 'categoria' ? (categoria.idCategoria ? 'Editar categoría' : 'Nueva categoría') : (movimiento.idMovimiento ? 'Editar movimiento' : 'Nuevo movimiento') }}</h2>
+        <button type="button" aria-label="Cerrar" [disabled]="ocupado()" (click)="modal = ''">✕</button>
+      </div>
+      @if (error()) {<p class="notice error" role="alert">{{ error() }}</p>}
+
+      @if (modal === 'producto') {
+        <form #f="ngForm" (ngSubmit)="guardarProducto()">
+          <fieldset [disabled]="ocupado()">
+            <label>Nombre<input name="nombre" [(ngModel)]="producto.nombre" required maxlength="100"></label>
+            <label>Descripción<textarea name="descripcion" [(ngModel)]="producto.descripcion" maxlength="250" rows="2"></textarea></label>
+            <div class="form-row">
+              <label>Precio (USD)<input name="precio" type="number" [(ngModel)]="producto.precio" min="0.01" max="99999999.99" step="0.01" required></label>
+              <label>{{ producto.idProducto ? 'Stock (usar Movimientos)' : 'Stock inicial' }}<input name="stock" type="number" [(ngModel)]="producto.stock" min="0" max="2147483647" step="1" required [readonly]="!!producto.idProducto"></label>
+            </div>
+            <label>Categoría
+              <select name="categoria" [(ngModel)]="producto.idCategoria" required>
+                <option [ngValue]="0" disabled>Seleccione una categoría</option>
+                @for (c of categorias(); track c.idCategoria) {
+                  <option [ngValue]="c.idCategoria" [disabled]="!c.estado">{{ c.nombre }}{{ c.estado ? '' : ' (inactiva)' }}</option>
+                }
+              </select>
+            </label>
+            <label class="check"><input name="estado" type="checkbox" [(ngModel)]="producto.estado"> Producto activo</label>
+            <div class="modal-actions">
+              <button type="button" class="secondary" (click)="modal = ''">Cancelar</button>
+              <button class="primary" [disabled]="f.invalid || producto.idCategoria <= 0">Guardar producto</button>
+            </div>
+          </fieldset>
+        </form>
+      }
+
+      @if (modal === 'categoria') {
+        <form #f="ngForm" (ngSubmit)="guardarCategoria()">
+          <fieldset [disabled]="ocupado()">
+            <label>Nombre<input name="nombre" [(ngModel)]="categoria.nombre" required maxlength="100"></label>
+            <label>Descripción<textarea name="descripcion" [(ngModel)]="categoria.descripcion" maxlength="250" rows="3"></textarea></label>
+            <label class="check"><input name="estado" type="checkbox" [(ngModel)]="categoria.estado"> Categoría activa</label>
+            <p class="help">Para desactivar una categoría, primero desactiva o reasigna sus productos activos.</p>
+            <div class="modal-actions">
+              <button type="button" class="secondary" (click)="modal = ''">Cancelar</button>
+              <button class="primary" [disabled]="f.invalid">Guardar categoría</button>
+            </div>
+          </fieldset>
+        </form>
+      }
+
+      @if (modal === 'movimiento') {
+        <form #f="ngForm" (ngSubmit)="guardarMovimiento()">
+          <fieldset [disabled]="ocupado()">
+            <label>Producto
+              <select name="producto" [(ngModel)]="movimiento.idProducto" [disabled]="!!movimiento.idMovimiento" required>
+                <option [ngValue]="0" disabled>Seleccione un producto</option>
+                @for (p of productos(); track p.idProducto) {
+                  <option [ngValue]="p.idProducto" [disabled]="!p.estado">{{ p.nombre }} · stock {{ p.stock }}{{ p.estado ? '' : ' (inactivo)' }}</option>
+                }
+              </select>
+            </label>
+            @if (productoSeleccionado(); as sel) {
+              <p class="stock-preview">
+                Stock actual de <strong>{{ sel.nombre }}</strong>: {{ sel.stock }}.
+                @if (stockResultante() !== null) {
+                  Resultado estimado: <strong [class.warn]="stockResultante()! < 0">{{ stockResultante() }}</strong>.
+                }
+              </p>
+            }
+            <div class="form-row">
+              <label>Tipo
+                <select name="tipo" [(ngModel)]="movimiento.tipoMovimiento">
+                  <option>Entrada</option>
+                  <option>Salida</option>
+                </select>
+              </label>
+              <label>Cantidad<input name="cantidad" type="number" [(ngModel)]="movimiento.cantidad" min="1" max="2147483647" step="1" required></label>
+            </div>
+            <label>Observación<textarea name="observacion" [(ngModel)]="movimiento.observacion" maxlength="250" rows="3"></textarea></label>
+            <p class="help">La fecha se registra automáticamente. La cantidad debe ser un número entero positivo. El servidor rechaza una salida que deje el stock negativo.</p>
+            <div class="modal-actions">
+              <button type="button" class="secondary" (click)="modal = ''">Cancelar</button>
+              <button class="primary" [disabled]="f.invalid || movimiento.idProducto <= 0">Guardar movimiento</button>
+            </div>
+          </fieldset>
+        </form>
+      }
+    </div>
+  </div>
+}
+
+@if (confirmacion; as c) {
+  <div class="backdrop" (click)="cerrarOverlay()">
+    <div class="modal" role="alertdialog" aria-modal="true" aria-label="Confirmación" (click)="$event.stopPropagation()">
+      <div class="modal-heading"><h2>{{ c.titulo }}</h2></div>
+      <p class="help">{{ c.texto }}</p>
+      <div class="modal-actions">
+        <button type="button" class="secondary" (click)="confirmacion = null">Cancelar</button>
+        <button type="button" class="danger" (click)="confirmar()">{{ c.accionTexto }}</button>
+      </div>
+    </div>
+  </div>
 }

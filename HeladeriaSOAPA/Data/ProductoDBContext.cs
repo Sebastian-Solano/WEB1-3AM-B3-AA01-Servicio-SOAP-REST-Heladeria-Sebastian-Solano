@@ -12,5 +12,13 @@ namespace HeladeriaSOAPA.Data
         }
         public DbSet<Categoria> Categorias { get; set; }
         public DbSet<Producto> Productos { get; set; }
+        public DbSet<MovimientoInventario> Movimientos { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Producto>().HasOne<Categoria>().WithMany()
+                .HasForeignKey(p => p.IdCategoria).OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<MovimientoInventario>().HasOne<Producto>().WithMany()
+                .HasForeignKey(m => m.IdProducto).OnDelete(DeleteBehavior.Restrict);
+        }
     }
 }

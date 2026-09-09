@@ -8,6 +8,9 @@ namespace HeladeriaSOAPA.Services
     {
         [OperationContract]
         List<Categoria> ObtenerCategorias();
+        [OperationContract] Categoria AgregarCategoria(Categoria categoria);
+        [OperationContract] bool ActualizarCategoria(Categoria categoria);
+        [OperationContract] bool EliminarCategoria(int id);
 
         [OperationContract]
         List<Producto> ObtenerProductos();

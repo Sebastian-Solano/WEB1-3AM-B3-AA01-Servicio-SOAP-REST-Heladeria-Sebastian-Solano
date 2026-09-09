@@ -1,0 +1,113 @@
+/* Prueba de navegador y grabación real. Requiere Playwright y Chrome.
+   PLAYWRIGHT_MODULE puede apuntar a una instalación existente de Playwright. */
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+(async () => {
+  const browser = await chromium.launch({ channel: 'chrome', headless: true, slowMo: 100 });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, recordVideo: { dir: 'tmp/videos', size: { width: 1440, height: 1000 } } });
+  const page = await context.newPage();
+  const responses = []; const errors = [];
+  page.on('response', r => { if (/ProductoService|api\/movimientos|dummyjson/.test(r.url())) responses.push({url:r.url(), status:r.status(), method:r.request().method(), action:r.request().headers()['soapaction'] || ''}); });
+  page.on('pageerror', e => errors.push(e.message));
+  page.on('dialog', d => d.accept());
+  const pausa = ms => page.waitForTimeout(ms);
+  async function subtitulo(text) {
+    await page.evaluate(text => {
+      let el = document.getElementById('demo-caption');
+      if (!el) { el = document.createElement('div'); el.id = 'demo-caption'; document.body.append(el); }
+      Object.assign(el.style, { position:'fixed',bottom:'14px',left:'260px',right:'24px',padding:'18px 24px',background:'#162e28f2',color:'white',borderRadius:'12px',font:'18px/1.5 Arial',zIndex:'10000',boxShadow:'0 6px 20px #0003',pointerEvents:'none' });
+      el.textContent = text;
+    }, text);
+    await pausa(3500);
+  }
+  async function guardado(text) {
+    await page.getByRole('status').filter({hasText:text}).waitFor({timeout:25000});
+    assert.equal(await page.getByRole('dialog').count(), 0);
+  }
+  await page.goto('http://127.0.0.1:4200', {waitUntil:'networkidle'});
+  await page.getByRole('heading', {name:'Productos', exact:true}).waitFor();
+  assert.equal(await page.locator('[role=alert]').count(),0);
+  await subtitulo('Heladería SOAPA · Tercero A Matutino. Angular integra categorías y productos por SOAP, inventario por REST y un catálogo externo.');
+  await page.screenshot({path:'evidencias/01-productos.png',fullPage:true});
+  await page.getByRole('navigation').getByRole('button',{name:/Categorías/}).click();
+  await page.getByRole('button',{name:'+ Nueva categoría',exact:true}).click();
+  const marca = Date.now().toString().slice(-6);
+  const categoria = 'Especiales AA '+marca;
+  await page.getByLabel('Nombre',{exact:true}).fill(categoria);
+  await page.getByLabel('Descripción',{exact:true}).fill('Sabores de temporada: demostración de integración.');
+  await subtitulo('Categorías: Angular envía un sobre XML y la cabecera SOAPAction a ProductoService.asmx. CoreWCF ejecuta AgregarCategoria y Entity Framework guarda en SQL Server.');
+  await page.getByRole('button',{name:'Guardar categoría',exact:true}).click();
+  await guardado('Categoría guardada');
+  await page.screenshot({path:'evidencias/02-categorias.png',fullPage:true});
+  await page.getByRole('navigation').getByRole('button',{name:/Productos/}).click();
+  await page.getByRole('button',{name:'+ Nuevo producto',exact:true}).click();
+  const producto = 'Copa de fresa AA '+marca;
+  await page.getByLabel('Nombre',{exact:true}).fill(producto);
+  await page.getByLabel('Descripción',{exact:true}).fill('Fresa, crema y fruta fresca. Registro creado desde Angular.');
+  await page.getByLabel('Precio (USD)',{exact:true}).fill('4.50');
+  await page.getByLabel('Stock inicial',{exact:true}).fill('10');
+  await page.locator('select[name=categoria]').selectOption({label:categoria});
+  await subtitulo('Producto relacionado con su categoría. AgregarProducto recibe nombre, descripción, precio, stock inicial, estado e IdCategoria. Los cambios posteriores de stock usan REST.');
+  await page.getByRole('button',{name:'Guardar producto',exact:true}).click();
+  await guardado('Producto guardado');
+  await page.getByRole('textbox',{name:'Buscar productos'}).fill(producto);
+  await page.getByRole('button',{name:'Editar',exact:true}).click();
+  await page.getByLabel('Precio (USD)',{exact:true}).fill('4.75');
+  await page.getByRole('button',{name:'Guardar producto',exact:true}).click();
+  await guardado('Producto guardado');
+  await subtitulo('ActualizarProducto cambió el precio a $4,75. El stock es de solo lectura al editar: así se evita perder cambios de inventario realizados al mismo tiempo.');
+  await page.screenshot({path:'evidencias/03-producto-actualizado.png',fullPage:true});
+  await page.getByRole('navigation').getByRole('button',{name:/Movimientos/}).click();
+  await page.getByRole('button',{name:'+ Nuevo movimiento',exact:true}).click();
+  await page.locator('select[name=producto]').selectOption({label:producto+' · stock 10'});
+  await page.getByLabel('Cantidad',{exact:true}).fill('5');
+  await page.getByLabel('Observación',{exact:true}).fill('Ingreso de demostración AA desde Angular');
+  await subtitulo('POST /api/movimientos envía JSON: IdProducto, Entrada, cantidad 5 y observación. Una transacción confirma el movimiento y el stock juntos: 10 + 5 = 15.');
+  await page.getByRole('button',{name:'Guardar movimiento',exact:true}).click();
+  await guardado('Movimiento guardado');
+  await page.getByRole('combobox',{name:'Filtrar movimientos por producto'}).selectOption({label:producto});
+  await pausa(1000);
+  await page.screenshot({path:'evidencias/04-movimientos.png',fullPage:true});
+  await page.getByRole('button',{name:'+ Nuevo movimiento',exact:true}).click();
+  await page.locator('select[name=producto]').selectOption({label:producto+' · stock 15'});
+  await page.locator('select[name=tipo]').selectOption('Salida');
+  await page.getByLabel('Cantidad',{exact:true}).fill('100');
+  await page.getByRole('button',{name:'Guardar movimiento',exact:true}).click();
+  await page.getByRole('alert').filter({hasText:'Stock insuficiente'}).waitFor();
+  await subtitulo('Validación de negocio: una salida de 100 se rechaza con HTTP 409. No se registra el movimiento y el stock permanece en 15.');
+  await page.screenshot({path:'evidencias/05-validacion-stock.png',fullPage:true});
+  await page.getByRole('button',{name:'Cancelar',exact:true}).click();
+  await page.getByRole('navigation').getByRole('button',{name:/Catálogo externo/}).click();
+  await page.getByRole('button',{name:'Consultar catálogo',exact:true}).click();
+  await page.locator('.externa img').first().waitFor({timeout:25000});
+  await page.getByRole('combobox',{name:'Producto local para comparar'}).selectOption({label:producto});
+  await page.getByRole('textbox',{name:'Buscar en catálogo externo'}).fill('milk');
+  await subtitulo('Angular consulta directamente https://dummyjson.com/products/category/groceries. Se muestran nombre, categoría, imagen y precio recibidos, comparados con un producto local.');
+  await page.screenshot({path:'evidencias/06-api-externa.png',fullPage:true});
+  await page.route('https://dummyjson.com/**', route => route.abort());
+  await page.getByRole('button',{name:'Consultar catálogo',exact:true}).click();
+  await page.getByRole('alert').waitFor();
+  await subtitulo('Prueba de error externo: se interrumpe esta solicitud de prueba. La pantalla informa el fallo y permite reintentar; no sustituye la respuesta por datos inventados.');
+  await page.screenshot({path:'evidencias/07-error-api.png',fullPage:true});
+  await page.unroute('https://dummyjson.com/**');
+  await page.getByRole('navigation').getByRole('button',{name:/Productos/}).click();
+  await page.reload({waitUntil:'networkidle'});
+  await page.getByRole('textbox',{name:'Buscar productos'}).fill(producto);
+  await page.getByText('15 disponibles',{exact:true}).waitFor();
+  await subtitulo('Persistencia: después de recargar Angular, SOAP vuelve a consultar SQL Server y muestra el precio $4,75 y stock 15. SQL/VerificarPersistencia.sql permite revisar también las tres tablas.');
+  await page.screenshot({path:'evidencias/08-persistencia.png',fullPage:true});
+  await subtitulo('Flujo de código: servicios.ts serializa SOAP y realiza HTTP REST/externo. ProductoService valida entidades; HeladeriaREST/Program.cs aplica transacciones. README y Postman incluyen ejecución y pruebas.');
+  const video = page.video();
+  assert.equal(errors.length,0, JSON.stringify(errors));
+  assert(responses.some(r=>r.url.includes('dummyjson')&&r.status===200));
+  assert(responses.some(r=>r.action.includes('AgregarProducto')&&r.status===200));
+  assert(responses.some(r=>r.url.includes('api/movimientos')&&r.status===201));
+  await context.close();
+  await video.saveAs('evidencias/Demostracion-AA.webm');
+  fs.writeFileSync('evidencias/prueba-navegador.json',JSON.stringify({fecha:new Date().toISOString(),producto,categoria,erroresJavaScript:errors,solicitudes:responses,resultado:'Correcto: SOAP, REST, API externa, error, persistencia tras recarga'},null,2));
+  await browser.close();
+  console.log('Navegador: integración correcta; capturas y video guardados en evidencias/.');
+})().catch(e => { console.error(e); process.exit(1); });
+

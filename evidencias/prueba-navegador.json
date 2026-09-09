@@ -1,0 +1,291 @@
+{
+  "fecha": "2026-09-09T14:42:37.665Z",
+  "producto": "Copa de fresa AA 905672",
+  "categoria": "Especiales AA 905672",
+  "erroresJavaScript": [],
+  "solicitudes": [
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/AgregarCategoria\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/AgregarProducto\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ActualizarProducto\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 201,
+      "method": "POST",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos?idProducto=17",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 409,
+      "method": "POST",
+      "action": ""
+    },
+    {
+      "url": "https://dummyjson.com/products/category/groceries",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/chicken-meat/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/cucumber/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/cooking-oil/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/cat-food/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/beef-steak/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/apple/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/eggs/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/fish-steak/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/ice-cream/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/dog-food/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/green-bell-pepper/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/lemon/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/honey-jar/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/green-chili-pepper/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/kiwi/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/juice/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/milk/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/mulberry/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/potatoes/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "https://cdn.dummyjson.com/product-images/groceries/nescafe-coffee/thumbnail.webp",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+    },
+    {
+      "url": "http://localhost:5103/api/movimientos",
+      "status": 200,
+      "method": "GET",
+      "action": ""
+    },
+    {
+      "url": "http://localhost:5102/ProductoService.asmx",
+      "status": 200,
+      "method": "POST",
+      "action": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+    }
+  ],
+  "resultado": "Correcto: SOAP, REST, API externa, error, persistencia tras recarga"
+}

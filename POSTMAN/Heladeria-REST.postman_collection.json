@@ -1,0 +1,125 @@
+{
+  "info": {
+    "name": "Heladería SOAPA · REST",
+    "description": "Colección REST de MovimientoInventario.\n\nBase: http://localhost:5103/api/movimientos\nContent-Type: application/json\n\nUse un productoId existente (creado por SOAP). No envíe fecha: el servidor la asigna en UTC.\nPOST entrada guarda movimientoId para PUT y DELETE.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "restUrl", "value": "http://localhost:5103/api/movimientos" },
+    { "key": "productoId", "value": "1" },
+    { "key": "movimientoId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "GET Listar movimientos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{restUrl}}",
+        "description": "Listado ordenado por fecha descendente."
+      }
+    },
+    {
+      "name": "GET Filtrar por producto",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{restUrl}}?idProducto={{productoId}}"
+      }
+    },
+    {
+      "name": "GET Consultar por id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{restUrl}}/{{movimientoId}}"
+      }
+    },
+    {
+      "name": "POST Registrar entrada",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "const id = pm.response.json().idMovimiento;",
+              "if (id) pm.collectionVariables.set(\"movimientoId\", String(id));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idProducto\": {{productoId}},\n  \"tipoMovimiento\": \"Entrada\",\n  \"cantidad\": 5,\n  \"observacion\": \"Ingreso de prueba Postman\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{restUrl}}",
+        "description": "Crea el movimiento y suma stock. HTTP 201."
+      }
+    },
+    {
+      "name": "PUT Actualizar movimiento",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idProducto\": {{productoId}},\n  \"tipoMovimiento\": \"Entrada\",\n  \"cantidad\": 3,\n  \"observacion\": \"Corrección de cantidad\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{restUrl}}/{{movimientoId}}",
+        "description": "Revierte el efecto anterior y aplica el nuevo. El producto no se puede cambiar."
+      }
+    },
+    {
+      "name": "POST Registrar salida",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idProducto\": {{productoId}},\n  \"tipoMovimiento\": \"Salida\",\n  \"cantidad\": 2,\n  \"observacion\": \"Salida de prueba Postman\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{restUrl}}",
+        "description": "Resta stock si hay existencias suficientes."
+      }
+    },
+    {
+      "name": "POST Salida sin stock (409)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"idProducto\": {{productoId}},\n  \"tipoMovimiento\": \"Salida\",\n  \"cantidad\": 99999,\n  \"observacion\": \"Debe rechazarse\"\n}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{restUrl}}",
+        "description": "Esperado: HTTP 409 Stock insuficiente."
+      }
+    },
+    {
+      "name": "DELETE Eliminar y revertir",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{restUrl}}/{{movimientoId}}",
+        "description": "Elimina el movimiento y revierte su efecto en el stock. HTTP 204."
+      }
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+
+
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "ClientesConnection": "Server=localhost\\SQLEXPRESS;Database=ClientesSOAPDB;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False;"
+  }

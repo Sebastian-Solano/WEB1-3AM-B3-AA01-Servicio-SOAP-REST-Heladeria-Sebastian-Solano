@@ -1,0 +1,727 @@
+{
+  "info": {
+    "name": "Heladería SOAPA · AA SOAP REST y API externa",
+    "description": "Ejecutar en orden con Collection Runner. Crea registros propios, prueba CRUD y stock, y termina desactivándolos. No altera productos previos. Importar con ambos servicios en ejecución.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "soapUrl",
+      "value": "http://localhost:5102/ProductoService.asmx"
+    },
+    {
+      "key": "restUrl",
+      "value": "http://localhost:5103/api/movimientos"
+    },
+    {
+      "key": "categoriaId",
+      "value": ""
+    },
+    {
+      "key": "productoId",
+      "value": ""
+    },
+    {
+      "key": "movimientoId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "SOAP · ObtenerCategorias",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerCategorias\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ObtenerCategorias xmlns=\"http://tempuri.org/\"></ObtenerCategorias></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · AgregarCategoria",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/AgregarCategoria\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><AgregarCategoria xmlns=\"http://tempuri.org/\"><categoria xmlns:d=\"http://schemas.datacontract.org/2004/07/HeladeriaSOAPA.Models\"><d:Descripcion>Prueba Postman AA</d:Descripcion><d:Estado>true</d:Estado><d:IdCategoria>0</d:IdCategoria><d:Nombre>Categoría Postman {{$timestamp}}</d:Nombre></categoria></AgregarCategoria></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const m = pm.response.text().match(/<(?:[\\w]+:)?IdCategoria>(\\d+)<\\//);",
+              "pm.test(\"Identificador generado\", () => pm.expect(m).not.to.be.null); if(m) pm.collectionVariables.set(\"categoriaId\",m[1]);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ActualizarCategoria",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ActualizarCategoria\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ActualizarCategoria xmlns=\"http://tempuri.org/\"><categoria xmlns:d=\"http://schemas.datacontract.org/2004/07/HeladeriaSOAPA.Models\"><d:Descripcion>Prueba Postman AA</d:Descripcion><d:Estado>true</d:Estado><d:IdCategoria>{{categoriaId}}</d:IdCategoria><d:Nombre>Categoría Postman actualizada</d:Nombre></categoria></ActualizarCategoria></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · AgregarProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/AgregarProducto\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><AgregarProducto xmlns=\"http://tempuri.org/\"><producto xmlns:d=\"http://schemas.datacontract.org/2004/07/HeladeriaSOAPA.Models\"><d:Descripcion>Producto de prueba Postman</d:Descripcion><d:Estado>true</d:Estado><d:IdCategoria>{{categoriaId}}</d:IdCategoria><d:IdProducto>0</d:IdProducto><d:Nombre>Helado Postman {{$timestamp}}</d:Nombre><d:Precio>2.50</d:Precio><d:Stock>10</d:Stock></producto></AgregarProducto></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "const m = pm.response.text().match(/<(?:[\\w]+:)?IdProducto>(\\d+)<\\//);",
+              "pm.test(\"Identificador generado\", () => pm.expect(m).not.to.be.null); if(m) pm.collectionVariables.set(\"productoId\",m[1]);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ObtenerProductos",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProductos\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ObtenerProductos xmlns=\"http://tempuri.org/\"></ObtenerProductos></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ObtenerProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProducto\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ObtenerProducto xmlns=\"http://tempuri.org/\"><id>{{productoId}}</id></ObtenerProducto></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ActualizarProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ActualizarProducto\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ActualizarProducto xmlns=\"http://tempuri.org/\"><producto xmlns:d=\"http://schemas.datacontract.org/2004/07/HeladeriaSOAPA.Models\"><d:Descripcion>Producto de prueba Postman</d:Descripcion><d:Estado>true</d:Estado><d:IdCategoria>{{categoriaId}}</d:IdCategoria><d:IdProducto>{{productoId}}</d:IdProducto><d:Nombre>Helado Postman {{$timestamp}}</d:Nombre><d:Precio>3.25</d:Precio><d:Stock>10</d:Stock></producto></ActualizarProducto></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ObtenerProductosPorCategoria",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProductosPorCategoria\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ObtenerProductosPorCategoria xmlns=\"http://tempuri.org/\"><idCategoria>{{categoriaId}}</idCategoria></ObtenerProductosPorCategoria></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ObtenerProductosPorPrecio",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProductosPorPrecio\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ObtenerProductosPorPrecio xmlns=\"http://tempuri.org/\"><precioMinimo>1</precioMinimo><precioMaximo>5</precioMaximo></ObtenerProductosPorPrecio></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST · Registrar entrada",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{restUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idProducto\": {{productoId}}, \"tipoMovimiento\": \"Entrada\", \"cantidad\": 5, \"observacion\": \"Compra de prueba\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set(\"movimientoId\",pm.response.json().idMovimiento);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST · Listar por producto",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{restUrl}}?idProducto={{productoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST · Consultar movimiento",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{restUrl}}/{{movimientoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST · Actualizar entrada",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{restUrl}}/{{movimientoId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idProducto\": {{productoId}}, \"tipoMovimiento\": \"Entrada\", \"cantidad\": 3, \"observacion\": \"Compra de prueba\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ObtenerProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProducto\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ObtenerProducto xmlns=\"http://tempuri.org/\"><id>{{productoId}}</id></ObtenerProducto></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Stock 13 tras editar entrada\", () => pm.expect(pm.response.text()).to.match(/Stock>13<\\//));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST · Rechazar salida sin stock",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{restUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idProducto\": {{productoId}}, \"tipoMovimiento\": \"Salida\", \"cantidad\": 99999, \"observacion\": \"Compra de prueba\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST · Rechazar cantidad cero",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{restUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\"idProducto\": {{productoId}}, \"tipoMovimiento\": \"Salida\", \"cantidad\": 0, \"observacion\": \"Compra de prueba\"}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "REST · Eliminar y revertir entrada",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{restUrl}}/{{movimientoId}}"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 204\", () => pm.response.to.have.status(204));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · ObtenerProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/ObtenerProducto\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><ObtenerProducto xmlns=\"http://tempuri.org/\"><id>{{productoId}}</id></ObtenerProducto></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Stock inicial restaurado\", () => pm.expect(pm.response.text()).to.match(/Stock>10<\\//));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · EliminarProducto",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/EliminarProducto\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><EliminarProducto xmlns=\"http://tempuri.org/\"><id>{{productoId}}</id></EliminarProducto></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "SOAP · EliminarCategoria",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"http://tempuri.org/IProductoService/EliminarCategoria\""
+          }
+        ],
+        "url": "{{soapUrl}}",
+        "body": {
+          "mode": "raw",
+          "raw": "<s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Body><EliminarCategoria xmlns=\"http://tempuri.org/\"><id>{{categoriaId}}</id></EliminarCategoria></s:Body></s:Envelope>",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "API externa · Catálogo de alimentos",
+      "request": {
+        "method": "GET",
+        "url": "https://dummyjson.com/products/category/groceries"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+              "pm.test(\"Catálogo recibido\", () => pm.expect(pm.response.json().products).to.be.an(\"array\"));"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
