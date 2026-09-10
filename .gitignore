@@ -57,3 +57,8 @@ node_modules/
 dist/
 tmp/
 TestResults/
+
+# Videos: GitHub rechaza archivos de más de 100 MB
+*.mp4
+*.webm
+VideoExplicativo/
